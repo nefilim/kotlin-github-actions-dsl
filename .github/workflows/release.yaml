@@ -1,0 +1,55 @@
+name: Manual release
+
+on:
+  workflow_dispatch:
+    if: github.ref == 'refs/heads/main'
+    inputs:
+      modifier:
+        description: 'Version Modifier'
+        required: true
+        default: 'patch'
+        type: choice
+        options:
+          - 'patch'
+          - 'minor'
+          - 'major'
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Set up JDK 11
+        uses: actions/setup-java@v2
+        with:
+          java-version: '11'
+          distribution: 'zulu'
+
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Build and Release Main
+        if: ${{ github.ref_name == 'main' }}
+        uses: gradle/gradle-build-action@v2
+        with:
+          build-root-directory: ${{ inputs.source }}
+          cache-read-only: ${{ github.ref != 'refs/heads/develop' }} # only update the cache on the default branch https://github.com/gradle/gradle-build-action#optimizing-cache-effectiveness
+          arguments: |
+            -Psemver.modifier=${{ github.event.inputs.modifier }}  
+            clean build
+            publishToSonatype closeAndReleaseSonatypeStagingRepository 
+            githubRelease
+            --stacktrace
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          OSS_USER: '${{ secrets.OSS_USER }}'
+          OSS_TOKEN: '${{ secrets.OSS_TOKEN }}'
+          OSS_STAGING_PROFILE_ID: '${{ secrets.OSS_STAGING_PROFILE_ID }}'
+          ORG_GRADLE_PROJECT_signingKeyId: ${{ secrets.ORG_GRADLE_PROJECT_SIGNINGKEYID }}
+          ORG_GRADLE_PROJECT_signingKey: ${{ secrets.ORG_GRADLE_PROJECT_SIGNINGKEY }}
+          ORG_GRADLE_PROJECT_signingPassword: ${{ secrets.ORG_GRADLE_PROJECT_SIGNINGPASSWORD }}
+
+      - name: Stop Gradle daemons
+        run: ./gradlew --stop

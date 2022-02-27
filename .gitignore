@@ -1,0 +1,17 @@
+/.gradle
+/build
+/build-logic/.gradle
+.DS_Store
+build/
+*.iws
+*.ipr
+*.pgp
+*.gpg
+publish.txt
+
+# Intellij
+out/
+/.settings/
+*.iml
+/.datastore
+.idea/
