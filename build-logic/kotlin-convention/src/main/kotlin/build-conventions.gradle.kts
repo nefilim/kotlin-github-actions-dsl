@@ -11,7 +11,7 @@ semver {
     versionModifier(semVerModifier)
 }
 
-group = "io.github.nefilim.ghakdsl"
+group = "io.github.nefilim.githubactions"
 version = semver.version
 
 configure<com.adarshr.gradle.testlogger.TestLoggerExtension> {

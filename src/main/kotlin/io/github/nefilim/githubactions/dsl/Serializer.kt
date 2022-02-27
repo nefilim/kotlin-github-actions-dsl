@@ -1,4 +1,4 @@
-package io.github.nefilim.kghadsl
+package io.github.nefilim.githubactions.dsl
 
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.descriptors.PrimitiveKind

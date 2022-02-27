@@ -36,7 +36,7 @@ publishing {
     publications {
         create<MavenPublication>("mavenJava") {
             pom {
-                name.set("ghakdsl-${project.name}")
+                name.set("kotlin-github-actions-dsl")
                 description.set("A Kotlin DSL for generating Github Actions in YAML")
                 url.set("https://github.com/nefilim/ghakdsl")
                 licenses {
@@ -57,7 +57,7 @@ publishing {
                     url.set("https://github.com/nefilim/ghakdsl")
                 }
             }
-            artifactId = "ghakdsl-${project.name}"
+            artifactId = "kotlin-dsl"
             groupId = project.group.toString()
             version = project.version.toString()
             from(components["java"])

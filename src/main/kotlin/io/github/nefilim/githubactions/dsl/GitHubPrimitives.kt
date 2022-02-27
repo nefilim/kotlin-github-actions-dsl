@@ -1,4 +1,4 @@
-package io.github.nefilim.kghadsl
+package io.github.nefilim.githubactions.dsl
 
 fun param(name: String, value: String): Pair<String, String> = name to value
 

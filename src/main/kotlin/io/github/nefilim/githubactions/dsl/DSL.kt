@@ -1,11 +1,11 @@
 @file:OptIn(ExperimentalSerializationApi::class)
 
-package io.github.nefilim.kghadsl
+package io.github.nefilim.githubactions.dsl
 
-import io.github.nefilim.kghadsl.Trigger.WorkflowDispatch.Companion.Input
+import io.github.nefilim.githubactions.dsl.Trigger.WorkflowDispatch.Companion.Input
 import kotlinx.serialization.ExperimentalSerializationApi
 
-@Annotations
+@GithubActionsDSL
 class WorkflowBuilder(
     private val name: String,
 ) {
