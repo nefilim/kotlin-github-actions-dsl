@@ -3,3 +3,64 @@
 # Kotlin DSL for Github Actions 
 
 Simple DSL to generate Github Actions YAML workflows. 
+
+## Usage
+
+Include the following dependency: `io.github.nefilim.githubactions:kotlin-dsl:<latest>`. 
+
+Define your workflow, example:
+
+```kotlin
+val wf = workflow("CI Build") {
+    triggers {
+        push {
+            branches = listOf("main")
+            pathsIgnore = listOf("**.md")
+        }
+        pullRequest {
+            branchesIgnore = listOf("renovate/*")
+            pathsIgnore = listOf("**.md")
+        }
+        workflowDispatch {
+            inputString("deploymentFilename", "Deployment descriptor name", "deployment.yaml", false)
+        }
+    }
+    concurrency("ci-build-${githubRef("ref")}")
+    env {
+        "NEXUS_USER" to secretRef("NEXUS_USER")
+        "NEXUS_PASS" to secretRef("NEXUS_PASS")
+    }
+    jobs {
+        "ci-build" to Job(
+            runsOn = listOf("linux", "self-hosted"),
+            steps = listOf(
+                CheckoutAction(
+                    path = "source",
+                    repository = "nefilim/gradle-github-actions-generator",
+                    ref = "main",
+                ).toStep(Step.StepID("my-checkout"), "Checkout Source", CheckoutAction.Uses),
+                GradleBuildAction(
+                    buildRootDirectory = "source",
+                    arguments = "clean build"
+                ).toStep()
+            ),
+        )
+    }
+}
+```
+
+Generate the corresponding YAML using [KotlinX Serialization](https://github.com/Kotlin/kotlinx.serialization) & [YAML](https://github.com/charleskorn/kaml):
+
+```kotlin
+    val yaml = Yaml(
+        configuration = YamlConfiguration(
+            breakScalarsAt = 200,
+            multiLineStringStyle = MultiLineStringStyle.Literal,
+            quotedScalarStyle = QuotedScalarStyle.SingleQuoted,
+        )
+    )
+
+    println(yaml.encodeToString(Workflow.serializer(), Reference.Workflows.ManualReleaseAndDeploy))
+```
+
+A Gradle Plugin is also available to generate workflows right from your build definition: https://github.com/nefilim/gradle-github-actions-generator
