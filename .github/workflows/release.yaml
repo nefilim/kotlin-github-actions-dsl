@@ -35,7 +35,7 @@ jobs:
         uses: gradle/gradle-build-action@v2
         with:
           build-root-directory: ${{ inputs.source }}
-          cache-read-only: ${{ github.ref != 'refs/heads/develop' }} # only update the cache on the default branch https://github.com/gradle/gradle-build-action#optimizing-cache-effectiveness
+          cache-read-only: ${{ github.ref != 'refs/heads/main' }} # only update the cache on the default branch https://github.com/gradle/gradle-build-action#optimizing-cache-effectiveness
           arguments: |
             -Psemver.modifier=${{ github.event.inputs.modifier }}  
             clean build
