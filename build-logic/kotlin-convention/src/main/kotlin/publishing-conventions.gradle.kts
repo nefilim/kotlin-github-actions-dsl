@@ -22,10 +22,9 @@ tasks.withType<Test> {
 signing {
     val skipSigning = findProperty("skipSigning")?.let { (it as String).toBoolean() } ?: false
     if (!skipSigning) {
-        val signingKeyId: String? by project
         val signingKey: String? by project
         val signingPassword: String? by project
-        useInMemoryPgpKeys(signingKeyId, signingKey, signingPassword)
+        useInMemoryPgpKeys(signingKey, signingPassword)
         sign(publishing.publications)
     } else {
         logger.warn("skipping signing")
