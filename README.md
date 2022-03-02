@@ -64,3 +64,13 @@ Generate the corresponding YAML using [KotlinX Serialization](https://github.com
 ```
 
 A Gradle Plugin is also available to generate workflows right from your build definition: https://github.com/nefilim/gradle-github-actions-generator
+                               
+## Bundled Actions
+
+* [CheckoutAction](https://github.com/actions/checkout)
+* [SetupJavaAction](https://github.com/actions/setup-java)
+* [GradleBuildAction](https://github.com/gradle/gradle-build-action)
+
+To add additional type safe GitHub Actions, please implement the [GithubAction interface](https://github.com/nefilim/kotlin-github-actions-dsl/blob/main/src/main/kotlin/io/github/nefilim/githubactions/dsl/actions/GithubAction.kt). 
+
+Example: [Gradle Build Action](https://github.com/nefilim/kotlin-github-actions-dsl/blob/main/src/main/kotlin/io/github/nefilim/githubactions/dsl/actions/GradleBuildAction.kt)
