@@ -60,7 +60,7 @@ Generate the corresponding YAML using [KotlinX Serialization](https://github.com
         )
     )
 
-    println(yaml.encodeToString(Workflow.serializer(), Reference.Workflows.ManualReleaseAndDeploy))
+    println(yaml.encodeToString(Workflow.serializer(), wf))
 ```
 
 A Gradle Plugin is also available to generate workflows right from your build definition: https://github.com/nefilim/gradle-github-actions-generator
