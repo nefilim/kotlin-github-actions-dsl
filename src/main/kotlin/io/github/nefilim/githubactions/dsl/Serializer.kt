@@ -7,19 +7,19 @@ import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 
-object InputSerializer: KSerializer<Trigger.WorkflowDispatch.Companion.Input> {
+object InputSerializer: KSerializer<Trigger.WorkflowDispatch.Input> {
     override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("value", PrimitiveKind.STRING)
 
-    override fun serialize(encoder: Encoder, value: Trigger.WorkflowDispatch.Companion.Input) {
+    override fun serialize(encoder: Encoder, value: Trigger.WorkflowDispatch.Input) {
         when (value) {
-            is Trigger.WorkflowDispatch.Companion.Input.Boolean -> encoder.encodeSerializableValue(Trigger.WorkflowDispatch.Companion.Input.Boolean.serializer(), value)
-            is Trigger.WorkflowDispatch.Companion.Input.Choice -> encoder.encodeSerializableValue(Trigger.WorkflowDispatch.Companion.Input.Choice.serializer(), value)
-            is Trigger.WorkflowDispatch.Companion.Input.Environment -> encoder.encodeSerializableValue(Trigger.WorkflowDispatch.Companion.Input.Environment.serializer(), value)
-            is Trigger.WorkflowDispatch.Companion.Input.String -> encoder.encodeSerializableValue(Trigger.WorkflowDispatch.Companion.Input.String.serializer(), value)
+            is Trigger.WorkflowDispatch.Input.Boolean -> encoder.encodeSerializableValue(Trigger.WorkflowDispatch.Input.Boolean.serializer(), value)
+            is Trigger.WorkflowDispatch.Input.Choice -> encoder.encodeSerializableValue(Trigger.WorkflowDispatch.Input.Choice.serializer(), value)
+            is Trigger.WorkflowDispatch.Input.Environment -> encoder.encodeSerializableValue(Trigger.WorkflowDispatch.Input.Environment.serializer(), value)
+            is Trigger.WorkflowDispatch.Input.String -> encoder.encodeSerializableValue(Trigger.WorkflowDispatch.Input.String.serializer(), value)
         }
     }
 
-    override fun deserialize(decoder: Decoder): Trigger.WorkflowDispatch.Companion.Input {
+    override fun deserialize(decoder: Decoder): Trigger.WorkflowDispatch.Input {
         TODO("deserialization of WorkflowDispatch.Input not implemented")
     }
 }

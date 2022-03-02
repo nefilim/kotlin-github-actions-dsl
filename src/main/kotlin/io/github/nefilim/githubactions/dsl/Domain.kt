@@ -21,6 +21,7 @@ data class Workflow(
 data class Triggers(
     @EncodeDefault(EncodeDefault.Mode.NEVER) @SerialName("workflow_dispatch") val workflowDispatch: Trigger.WorkflowDispatch? = null,
     @EncodeDefault(EncodeDefault.Mode.NEVER) val push: Trigger.Push? = null,
+    @EncodeDefault(EncodeDefault.Mode.NEVER) @SerialName("pull_request") val pullRequest: Trigger.PullRequest? = null,
 )
 
 @Serializable
@@ -48,60 +49,58 @@ sealed class Trigger {
     data class WorkflowDispatch(
         val inputs: Map<String, Input> = emptyMap()
     ): Trigger() {
-        companion object {
-            @Serializable
-            enum class Type {
-                @SerialName("boolean") Boolean,
-                @SerialName("choice") Choice,
-                @SerialName("environment") Environment,
-                @SerialName("string") String;
+        @Serializable
+        enum class Type {
+            @SerialName("boolean") Boolean,
+            @SerialName("choice") Choice,
+            @SerialName("environment") Environment,
+            @SerialName("string") String;
 
-                override fun toString(): kotlin.String {
-                    return this.name.lowercase()
-                }
+            override fun toString(): kotlin.String {
+                return this.name.lowercase()
+            }
+        }
+
+        @Serializable(with = InputSerializer::class)
+        sealed class Input {
+            abstract val description: kotlin.String
+            abstract val required: kotlin.Boolean
+            abstract val type: Type
+
+            @Serializable
+            data class Boolean(
+                override val description: kotlin.String,
+                @EncodeDefault(EncodeDefault.Mode.NEVER) val default: kotlin.Boolean? = null,
+                override val required: kotlin.Boolean = false,
+            ): Input() {
+                override val type: Type = Type.Boolean
             }
 
-            @Serializable(with = InputSerializer::class)
-            sealed class Input {
-                abstract val description: kotlin.String
-                abstract val required: kotlin.Boolean
-                abstract val type: Type
+            @Serializable
+            data class Choice(
+                override val description: kotlin.String,
+                val options: List<kotlin.String>,
+                @EncodeDefault(EncodeDefault.Mode.NEVER) val default: kotlin.String? = null,
+                override val required: kotlin.Boolean = false,
+            ): Input() {
+                override val type: Type = Type.Choice
+            }
 
-                @Serializable
-                data class Boolean(
-                    override val description: kotlin.String,
-                    @EncodeDefault(EncodeDefault.Mode.NEVER) val default: kotlin.Boolean? = null,
-                    override val required: kotlin.Boolean = false,
-                ): Input() {
-                    override val type: Type = Type.Boolean
-                }
+            @Serializable
+            data class Environment(
+                override val description: kotlin.String,
+                override val required: kotlin.Boolean = false,
+            ): Input() {
+                override val type: Type = Type.Environment
+            }
 
-                @Serializable
-                data class Choice(
-                    override val description: kotlin.String,
-                    val options: List<kotlin.String>,
-                    @EncodeDefault(EncodeDefault.Mode.NEVER) val default: kotlin.String? = null,
-                    override val required: kotlin.Boolean = false,
-                ): Input() {
-                    override val type: Type = Type.Choice
-                }
-
-                @Serializable
-                data class Environment(
-                    override val description: kotlin.String,
-                    override val required: kotlin.Boolean = false,
-                ): Input() {
-                    override val type: Type = Type.Environment
-                }
-
-                @Serializable
-                data class String(
-                    override val description: kotlin.String,
-                    @EncodeDefault(EncodeDefault.Mode.NEVER) val default: kotlin.String? = null,
-                    override val required: kotlin.Boolean = false,
-                ): Input() {
-                    override val type: Type = Type.String
-                }
+            @Serializable
+            data class String(
+                override val description: kotlin.String,
+                @EncodeDefault(EncodeDefault.Mode.NEVER) val default: kotlin.String? = null,
+                override val required: kotlin.Boolean = false,
+            ): Input() {
+                override val type: Type = Type.String
             }
         }
     }

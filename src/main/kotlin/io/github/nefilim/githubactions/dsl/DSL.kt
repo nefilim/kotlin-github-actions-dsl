@@ -2,7 +2,7 @@
 
 package io.github.nefilim.githubactions.dsl
 
-import io.github.nefilim.githubactions.dsl.Trigger.WorkflowDispatch.Companion.Input
+import io.github.nefilim.githubactions.dsl.Trigger.WorkflowDispatch.Input
 import kotlinx.serialization.ExperimentalSerializationApi
 import java.util.Collections
 
@@ -58,7 +58,8 @@ class TriggerBuilder() {
         val wfd = wfdb.build()
         return Triggers(
             if (wfd.isEmpty()) null else Trigger.WorkflowDispatch(wfd),
-            pb.build()
+            pb.build(),
+            prb.build(),
         )
     }
 }
@@ -71,15 +72,15 @@ class WorkflowDispatchBuilder() {
     }
 
     fun inputChoice(name: String, description: String, options: List<String>, default: String, required: Boolean = false) {
-        name to Trigger.WorkflowDispatch.Companion.Input.Choice(description, options, default, required)
+        name to Input.Choice(description, options, default, required)
     }
 
     fun inputBoolean(name: String, description: String, default: Boolean? = null, required: Boolean = false) {
-        name to Trigger.WorkflowDispatch.Companion.Input.Boolean(description, default, required)
+        name to Input.Boolean(description, default, required)
     }
 
     fun inputString(name: String, description: String, default: String? = null, required: Boolean = false) {
-        name to Trigger.WorkflowDispatch.Companion.Input.String(description, default, required)
+        name to Input.String(description, default, required)
     }
 
     fun build(): Map<String, Input> = map.toMap()
