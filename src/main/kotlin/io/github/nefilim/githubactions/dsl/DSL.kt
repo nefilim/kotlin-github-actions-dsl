@@ -4,6 +4,7 @@ package io.github.nefilim.githubactions.dsl
 
 import io.github.nefilim.githubactions.dsl.Trigger.WorkflowDispatch.Companion.Input
 import kotlinx.serialization.ExperimentalSerializationApi
+import java.util.Collections
 
 @GithubActionsDSL
 class WorkflowBuilder(
@@ -38,7 +39,8 @@ class WorkflowBuilder(
 
 class TriggerBuilder() {
     private val pb: PushBuilder = PushBuilder()
-    private var wfdb: WorkflowDispatchBuilder = WorkflowDispatchBuilder()
+    private val prb: PullRequestBuilder = PullRequestBuilder()
+    private val wfdb: WorkflowDispatchBuilder = WorkflowDispatchBuilder()
 
     fun workflowDispatch(fn: WorkflowDispatchBuilder.() -> Unit) {
         wfdb.fn()
@@ -46,6 +48,10 @@ class TriggerBuilder() {
 
     fun push(fn: PushBuilder.() -> Unit) {
         pb.fn()
+    }
+
+    fun pullRequest(fn: PullRequestBuilder.() -> Unit) {
+        prb.fn()
     }
 
     internal fun build(): Triggers {
@@ -58,23 +64,29 @@ class TriggerBuilder() {
 }
 
 class WorkflowDispatchBuilder() {
-    private var map = LinkedHashMap<String, Input>()
+    private val map = LinkedHashMap<String, Input>()
 
     infix fun String.to (input: Input) {
         map[this] = input
     }
 
-    fun inputChoice(description: String, options: List<String>, default: String): Input.Choice =
-        Trigger.WorkflowDispatch.Companion.Input.Choice(description, options, default)
+    fun inputChoice(name: String, description: String, options: List<String>, default: String, required: Boolean = false) {
+        name to Trigger.WorkflowDispatch.Companion.Input.Choice(description, options, default, required)
+    }
 
-    fun inputString(description: String, default: String? = null, required: Boolean = false): Input.String =
-        Trigger.WorkflowDispatch.Companion.Input.String(description, default, required)
+    fun inputBoolean(name: String, description: String, default: Boolean? = null, required: Boolean = false) {
+        name to Trigger.WorkflowDispatch.Companion.Input.Boolean(description, default, required)
+    }
+
+    fun inputString(name: String, description: String, default: String? = null, required: Boolean = false) {
+        name to Trigger.WorkflowDispatch.Companion.Input.String(description, default, required)
+    }
 
     fun build(): Map<String, Input> = map.toMap()
 }
 
 class EnvBuilder() {
-    private var map = HashMap<String, String>()
+    private val map = HashMap<String, String>()
 
     infix fun String.to (value: String) {
         map[this] = value
@@ -85,7 +97,7 @@ class EnvBuilder() {
 
 
 class JobsBuilder {
-    private var map = HashMap<String, Job>()
+    private val map = HashMap<String, Job>()
 
     infix fun String.to (job: Job) {
         map[this] = job
@@ -101,16 +113,35 @@ class PushBuilder {
     var branchesIgnore: List<String> = emptyList()
     var tags: List<String> = emptyList()
     var tagsIgnore: List<String> = emptyList()
+    var pathsIgnore: List<String> = emptyList()
     
     internal fun build(): Trigger.Push? {
-        return if (branches.isEmpty() && branchesIgnore.isEmpty() && tags.isEmpty() && tagsIgnore.isEmpty())
+        return if (branches.isEmpty() && branchesIgnore.isEmpty() && tags.isEmpty() && tagsIgnore.isEmpty() && pathsIgnore.isEmpty())
             null
         else
             Trigger.Push(
-                branches,
-                tags,
-                branchesIgnore,
-                tagsIgnore
+                Collections.unmodifiableList(branches),
+                Collections.unmodifiableList(tags),
+                Collections.unmodifiableList(branchesIgnore),
+                Collections.unmodifiableList(tagsIgnore),
+                Collections.unmodifiableList(pathsIgnore),
+            )
+    }
+}
+
+class PullRequestBuilder {
+    var branches: List<String> = emptyList()
+    var branchesIgnore: List<String> = emptyList()
+    var pathsIgnore: List<String> = emptyList()
+
+    internal fun build(): Trigger.PullRequest? {
+        return if (branches.isEmpty() && branchesIgnore.isEmpty() && pathsIgnore.isEmpty())
+            null
+        else
+            Trigger.PullRequest(
+                Collections.unmodifiableList(branches),
+                Collections.unmodifiableList(branchesIgnore),
+                Collections.unmodifiableList(pathsIgnore),
             )
     }
 }

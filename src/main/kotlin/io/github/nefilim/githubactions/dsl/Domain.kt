@@ -6,6 +6,7 @@ import kotlinx.serialization.EncodeDefault
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
 
 @Serializable
 data class Workflow(
@@ -31,6 +32,15 @@ sealed class Trigger {
         @EncodeDefault(EncodeDefault.Mode.NEVER) val tags: List<String> = emptyList(),
         @EncodeDefault(EncodeDefault.Mode.NEVER) @SerialName("branches-ignore") val branchesIgnore: List<String> = emptyList(),
         @EncodeDefault(EncodeDefault.Mode.NEVER) @SerialName("tags-ignore") val tagsIgnore: List<String> = emptyList(),
+        @EncodeDefault(EncodeDefault.Mode.NEVER) @SerialName("paths-ignore") val pathsIgnore: List<String> = emptyList(),
+    ): Trigger()
+
+    @Serializable
+    @SerialName("pull_request")
+    data class PullRequest(
+        @EncodeDefault(EncodeDefault.Mode.NEVER) val branches: List<String> = emptyList(), // verify globs?
+        @EncodeDefault(EncodeDefault.Mode.NEVER) @SerialName("branches-ignore") val branchesIgnore: List<String> = emptyList(),
+        @EncodeDefault(EncodeDefault.Mode.NEVER) @SerialName("paths-ignore") val pathsIgnore: List<String> = emptyList(),
     ): Trigger()
 
     @Serializable
@@ -107,6 +117,7 @@ data class Job(
 sealed class Step {
     abstract val name: String
     abstract val id: StepID?
+    abstract val outputs: Map<String, String>
 
     @Serializable(with = StepIDSerializer::class)
     data class StepID(val id: String) // swap to value class once gradle gets its shit together and move to 1.6
@@ -117,8 +128,9 @@ sealed class Step {
         val uses: String,
         @SerialName("with") val parameters: Map<String, String>,
         @EncodeDefault(EncodeDefault.Mode.NEVER) override val id: StepID? = null,
+        @Transient override val outputs: Map<String, String> = emptyMap(),
     ): Step() {
-        constructor(name: String, uses: String, id: StepID, parameters: Map<String, String>): this(name, uses, parameters, id)
+        constructor(name: String, uses: String, id: StepID, parameters: Map<String, String>, outputs: Map<String, String> = emptyMap()): this(name, uses, parameters, id, outputs)
     }
 
     @Serializable
@@ -127,16 +139,16 @@ sealed class Step {
         val run: String,
         @EncodeDefault(EncodeDefault.Mode.NEVER) override val id: StepID? = null,
         @EncodeDefault(EncodeDefault.Mode.NEVER) val shell: String? = null,
+        @Transient override val outputs: Map<String, String> = emptyMap(),
     ): Step() {
-        constructor(name: String, run: List<String>, shell: String? = null, id: StepID? = null): this(name, run.joinToString("\n"), id, shell)
+        constructor(name: String, run: List<String>): this(name, run.joinToString("\n"))
 
         companion object {
             fun python(name: String, run: List<String>, id: StepID? = null) = Runs(name, run.joinToString("\n"), id, "python")
             fun python(name: String, run: String) = Runs(name, run, null, "python")
-            fun python(name: String, id: StepID, run: String) = Runs(name, run, id, "python")
+            fun python(name: String, id: StepID, run: String, outputs: Map<String, String> = emptyMap()) = Runs(name, run, id, "python", outputs)
         }
     }
-
 }
 
 typealias Environment = Map<String, String>
