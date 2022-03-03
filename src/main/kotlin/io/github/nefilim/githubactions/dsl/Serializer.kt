@@ -1,5 +1,9 @@
 package io.github.nefilim.githubactions.dsl
 
+import com.charleskorn.kaml.MultiLineStringStyle
+import com.charleskorn.kaml.SingleLineStringStyle
+import com.charleskorn.kaml.Yaml
+import com.charleskorn.kaml.YamlConfiguration
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.descriptors.PrimitiveKind
 import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
@@ -50,3 +54,11 @@ object StepIDSerializer: KSerializer<Step.StepID> {
         TODO("deserialization of Step.StepID not implemented")
     }
 }
+
+val GitHubActionsYAML = Yaml(
+    configuration = YamlConfiguration(
+        breakScalarsAt = 200,
+        multiLineStringStyle = MultiLineStringStyle.Literal,
+        singleLineScalarStyle = SingleLineStringStyle.SingleQuoted,
+    )
+)

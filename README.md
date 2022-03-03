@@ -52,15 +52,7 @@ val wf = workflow("CI Build") {
 Generate the corresponding YAML using [KotlinX Serialization](https://github.com/Kotlin/kotlinx.serialization) & [YAML](https://github.com/charleskorn/kaml):
 
 ```kotlin
-    val yaml = Yaml(
-        configuration = YamlConfiguration(
-            breakScalarsAt = 200,
-            multiLineStringStyle = MultiLineStringStyle.Literal,
-            quotedScalarStyle = QuotedScalarStyle.SingleQuoted,
-        )
-    )
-
-    println(yaml.encodeToString(Workflow.serializer(), wf))
+    println(GitHubActionsYAML.encodeToString(Workflow.serializer(), wf))
 ```
 
 A Gradle Plugin is also available to generate workflows right from your build definition: https://github.com/nefilim/gradle-github-actions-generator

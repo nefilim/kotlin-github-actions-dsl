@@ -1,22 +1,10 @@
 package io.github.nefilim.githubactions.dsl
 
-import com.charleskorn.kaml.MultiLineStringStyle
-import com.charleskorn.kaml.SingleLineStringStyle
-import com.charleskorn.kaml.Yaml
-import com.charleskorn.kaml.YamlConfiguration
 import io.github.nefilim.githubactions.dsl.actions.GradleBuildAction
 import io.kotest.core.spec.style.WordSpec
 import io.kotest.matchers.shouldBe
 
 class DomainSpec: WordSpec() {
-
-    private val yaml = Yaml(
-        configuration = YamlConfiguration(
-            breakScalarsAt = 200,
-            multiLineStringStyle = MultiLineStringStyle.Literal,
-            singleLineScalarStyle = SingleLineStringStyle.SingleQuoted,
-        )
-    )
 
     init {
         "Steps" should {
@@ -25,7 +13,7 @@ class DomainSpec: WordSpec() {
                     buildRootDirectory = "sourceDir",
                     arguments = "clean build"
                 ).toStep()
-                yaml.encodeToString(Step.serializer(), step) shouldBe """
+                GitHubActionsYAML.encodeToString(Step.serializer(), step) shouldBe """
                     name: 'Gradle Build'
                     uses: 'gradle/gradle-build-action@v2'
                     with:
@@ -44,7 +32,7 @@ class DomainSpec: WordSpec() {
                     branchesIgnore = listOf("bla"),
                     pathsIgnore = listOf("**.md"),
                 )
-                yaml.encodeToString(Trigger.Push.serializer(), trigger) shouldBe """
+                GitHubActionsYAML.encodeToString(Trigger.Push.serializer(), trigger) shouldBe """
                     branches:
                     - 'main'
                     tags:
@@ -62,7 +50,7 @@ class DomainSpec: WordSpec() {
                     branchesIgnore = listOf("bla"),
                     pathsIgnore = listOf("**.md"),
                 )
-                yaml.encodeToString(Triggers.serializer(), Triggers(pullRequest = trigger)) shouldBe """
+                GitHubActionsYAML.encodeToString(Triggers.serializer(), Triggers(pullRequest = trigger)) shouldBe """
                     pull_request:
                       branches:
                       - 'main'
@@ -84,7 +72,7 @@ class DomainSpec: WordSpec() {
                         "pick_one" to Trigger.WorkflowDispatch.Input.Choice("cool input", listOf("A", "B", "C"), default = "B", required = true),
                     )
                 ).also {
-                    yaml.encodeToString(Trigger.WorkflowDispatch.serializer(), it) shouldBe """
+                    GitHubActionsYAML.encodeToString(Trigger.WorkflowDispatch.serializer(), it) shouldBe """
                         inputs:
                           'the_string':
                             description: 'cool string input'
