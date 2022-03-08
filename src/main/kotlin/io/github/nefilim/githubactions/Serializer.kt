@@ -1,9 +1,13 @@
-package io.github.nefilim.githubactions.dsl
+package io.github.nefilim.githubactions
 
 import com.charleskorn.kaml.MultiLineStringStyle
 import com.charleskorn.kaml.SingleLineStringStyle
 import com.charleskorn.kaml.Yaml
 import com.charleskorn.kaml.YamlConfiguration
+import io.github.nefilim.githubactions.actions.GitHubActionParameter
+import io.github.nefilim.githubactions.domain.Workflow.Job.Step
+import io.github.nefilim.githubactions.domain.StepID
+import io.github.nefilim.githubactions.domain.Workflow.Triggers.Trigger
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.descriptors.PrimitiveKind
 import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
@@ -43,14 +47,26 @@ object StepSerializer: KSerializer<Step> {
     }
 }
 
-object StepIDSerializer: KSerializer<Step.StepID> {
+object StepIDSerializer: KSerializer<StepID> {
     override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("stepID", PrimitiveKind.STRING)
 
-    override fun serialize(encoder: Encoder, value: Step.StepID) {
+    override fun serialize(encoder: Encoder, value: StepID) {
         encoder.encodeString(value.id)
     }
 
-    override fun deserialize(decoder: Decoder): Step.StepID {
+    override fun deserialize(decoder: Decoder): StepID {
+        TODO("deserialization of Step.StepID not implemented")
+    }
+}
+
+object GitHubActionParameterSerializer: KSerializer<GitHubActionParameter> {
+    override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("gitHubActionParameter", PrimitiveKind.STRING)
+
+    override fun serialize(encoder: Encoder, value: GitHubActionParameter) {
+        encoder.encodeString(value.parameter)
+    }
+
+    override fun deserialize(decoder: Decoder): GitHubActionParameter {
         TODO("deserialization of Step.StepID not implemented")
     }
 }

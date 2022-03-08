@@ -1,6 +1,10 @@
-package io.github.nefilim.githubactions.dsl
+package io.github.nefilim.githubactions.domain
 
-import io.github.nefilim.githubactions.dsl.actions.GradleBuildAction
+import io.github.nefilim.githubactions.GitHubActionsYAML
+import io.github.nefilim.githubactions.actions.GradleBuildAction
+import io.github.nefilim.githubactions.domain.Workflow.Job.Step
+import io.github.nefilim.githubactions.domain.Workflow.Triggers
+import io.github.nefilim.githubactions.domain.Workflow.Triggers.Trigger
 import io.kotest.core.spec.style.WordSpec
 import io.kotest.matchers.shouldBe
 

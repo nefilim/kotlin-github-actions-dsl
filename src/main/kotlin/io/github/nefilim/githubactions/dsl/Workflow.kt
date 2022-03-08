@@ -2,11 +2,17 @@
 
 package io.github.nefilim.githubactions.dsl
 
-import io.github.nefilim.githubactions.dsl.Trigger.WorkflowDispatch.Input
+import io.github.nefilim.githubactions.GithubActionsWorkflowDSL
+import io.github.nefilim.githubactions.domain.Workflow.Job
+import io.github.nefilim.githubactions.domain.Workflow.Job.Step
+import io.github.nefilim.githubactions.domain.Workflow.Triggers
+import io.github.nefilim.githubactions.domain.Workflow.Triggers.Trigger
+import io.github.nefilim.githubactions.domain.Workflow.Triggers.Trigger.WorkflowDispatch.Input
+import io.github.nefilim.githubactions.domain.Workflow
 import kotlinx.serialization.ExperimentalSerializationApi
 import java.util.Collections
 
-@GithubActionsDSL
+@GithubActionsWorkflowDSL
 class WorkflowBuilder(
     private val name: String,
 ) {
@@ -86,17 +92,6 @@ class WorkflowDispatchBuilder() {
     fun build(): Map<String, Input> = map.toMap()
 }
 
-class EnvBuilder() {
-    private val map = HashMap<String, String>()
-
-    infix fun String.to (value: String) {
-        map[this] = value
-    }
-
-    fun build(): Environment = map.toMap()
-}
-
-
 class JobsBuilder {
     private val map = HashMap<String, Job>()
 
@@ -104,7 +99,7 @@ class JobsBuilder {
         map[this] = job
     }
 
-    fun stepID(id: String) = Step.StepID(id)
+    fun stepID(id: String) = Step.WStepID(id)
 
     fun build(): Map<String, Job> = map.toMap()
 }
