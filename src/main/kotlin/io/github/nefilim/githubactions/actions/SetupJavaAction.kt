@@ -1,6 +1,9 @@
 package io.github.nefilim.githubactions.actions
 
-import io.github.nefilim.githubactions.domain.Workflow.Job.Step
+import io.github.nefilim.githubactions.domain.Environment
+import io.github.nefilim.githubactions.domain.GitHubActionInputParameter
+import io.github.nefilim.githubactions.domain.GitHubActionOutputParameter
+import io.github.nefilim.githubactions.domain.WorkflowCommon.Job.Step
 import io.github.nefilim.githubactions.outputRef
 import io.github.nefilim.githubactions.param
 
@@ -51,10 +54,10 @@ data class SetupJavaAction(
     
     companion object {
         const val Uses: String = "actions/setup-java@v2"
-        val DefaultStepID = Step.WStepID("actions-setup-java")
+        val DefaultStepID = Step.StepID("actions-setup-java")
     }
 
-    override fun toStep(id: Step.WStepID, name: String, uses: String): Step {
+    override fun toStep(id: Step.StepID, name: String, uses: String, predicate: String?, env: Environment?): Step {
         return Step.Uses(name, uses, id,
             // preserve parameter order
             linkedMapOf(
@@ -76,6 +79,8 @@ data class SetupJavaAction(
                     jobStatus?.let { param(InputParameter.JobStatus, it) },
                 ).toTypedArray()
             ),
+            predicate,
+            env,
             mapOf(
                 OutputParameter.Distribution to outputRef(id, OutputParameter.Distribution),
                 OutputParameter.Version to outputRef(id, OutputParameter.Version),
@@ -84,5 +89,5 @@ data class SetupJavaAction(
         )
     }
 
-    fun toStep(): Step = toStep(DefaultStepID, "Setup Java", Uses)
+    fun toStep(): Step = toStep(DefaultStepID, "Setup Java", Uses, null, null)
 }

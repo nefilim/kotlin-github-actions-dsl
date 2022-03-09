@@ -1,8 +1,11 @@
 package io.github.nefilim.githubactions.actions
 
-import io.github.nefilim.githubactions.domain.Workflow.Job.Step
+import io.github.nefilim.githubactions.domain.Environment
+import io.github.nefilim.githubactions.domain.GitHubActionInputParameter
+import io.github.nefilim.githubactions.domain.GitHubActionOutputParameter
+import io.github.nefilim.githubactions.domain.WorkflowCommon.Job.Step
 import io.github.nefilim.githubactions.expression
-import io.github.nefilim.githubactions.nestedActionInputRef
+import io.github.nefilim.githubactions.inputRef
 import io.github.nefilim.githubactions.outputRef
 import io.github.nefilim.githubactions.param
 
@@ -43,14 +46,15 @@ data class GradleBuildAction(
 
     companion object {
         const val Uses: String = "gradle/gradle-build-action@v2"
-        val DefaultStepID = Step.WStepID("gradle-build-action")
+        val DefaultStepID = Step.StepID("gradle-build-action")
 
         fun cacheReadOnlyFromBranch(defaultBranch: GitHubActionInputParameter): String =
-            expression("!(github.ref == format('refs/heads/{0}', ${nestedActionInputRef(defaultBranch)}) || github.head_ref == ${nestedActionInputRef(defaultBranch)}")
-        fun cacheReadOnlyFromBranch(defaultBranch: String): String = cacheReadOnlyFromBranch(AdhocInputParameter(defaultBranch))
+            cacheReadOnlyFromBranch(inputRef(defaultBranch))
+        fun cacheReadOnlyFromBranch(defaultBranch: String): String =
+            expression("!(github.ref == 'refs/heads/$defaultBranch') || github.head_ref == '$defaultBranch'")
     }
 
-    override fun toStep(id: Step.WStepID, name: String, uses: String): Step {
+    override fun toStep(id: Step.StepID, name: String, uses: String, predicate: String?, env: Environment?): Step {
         return Step.Uses(name, uses, id,
             // preserve parameter order
             linkedMapOf(
@@ -68,11 +72,13 @@ data class GradleBuildAction(
                     workflowJobContext?.let { param(InputParameter.WorkflowJobContext, it) },
                 ).toTypedArray()
             ),
+            predicate,
+            env,
             mapOf(
                 OutputParameter.BuildScanURL to outputRef(id, OutputParameter.BuildScanURL),
             )
         )
     }
     
-    fun toStep(): Step = toStep(DefaultStepID, "Gradle Build", Uses)
+    fun toStep(): Step = toStep(DefaultStepID, "Gradle Build", Uses, null, null)
 }

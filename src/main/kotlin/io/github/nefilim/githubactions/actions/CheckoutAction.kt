@@ -1,6 +1,8 @@
 package io.github.nefilim.githubactions.actions
 
-import io.github.nefilim.githubactions.domain.Workflow.Job.Step
+import io.github.nefilim.githubactions.domain.Environment
+import io.github.nefilim.githubactions.domain.GitHubActionInputParameter
+import io.github.nefilim.githubactions.domain.WorkflowCommon.Job.Step
 import io.github.nefilim.githubactions.param
 
 // TODO code gen this from parsing action.yaml
@@ -38,10 +40,10 @@ data class CheckoutAction(
 
     companion object {
         const val Uses: String = "actions/checkout@v2"
-        val DefaultStepID = Step.WStepID("actions-checkout")
+        val DefaultStepID = Step.StepID("actions-checkout")
     }
 
-    override fun toStep(id: Step.WStepID, name: String, uses: String): Step {
+    override fun toStep(id: Step.StepID, name: String, uses: String, predicate: String?, env: Environment?): Step {
         return Step.Uses(name, uses, id,
             // preserve parameter order
             linkedMapOf(
@@ -59,9 +61,11 @@ data class CheckoutAction(
                     lfs?.let { param(InputParameter.LFS, it) },
                     submodules?.let { param(InputParameter.Submodules, it) },
                 ).toTypedArray()
-            )
+            ),
+            predicate,
+            env,
         )
     }
 
-    fun toStep(): Step = toStep(DefaultStepID, "Git Checkout", Uses)
+    fun toStep(): Step = toStep(DefaultStepID, "Git Checkout", Uses, null, null)
 }

@@ -3,9 +3,9 @@
 package io.github.nefilim.githubactions.dsl
 
 import io.github.nefilim.githubactions.GithubActionMetadataDSL
-import io.github.nefilim.githubactions.actions.GitHubActionInputParameter
-import io.github.nefilim.githubactions.actions.GitHubActionOutputParameter
 import io.github.nefilim.githubactions.domain.CompositeAction
+import io.github.nefilim.githubactions.domain.GitHubActionInputParameter
+import io.github.nefilim.githubactions.domain.GitHubActionOutputParameter
 import kotlinx.serialization.ExperimentalSerializationApi
 import java.util.*
 import kotlin.collections.LinkedHashMap

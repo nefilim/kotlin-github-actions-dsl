@@ -3,14 +3,19 @@
 package io.github.nefilim.githubactions.dsl
 
 import io.github.nefilim.githubactions.GithubActionsWorkflowDSL
-import io.github.nefilim.githubactions.domain.Workflow.Job
-import io.github.nefilim.githubactions.domain.Workflow.Job.Step
+import io.github.nefilim.githubactions.domain.GitHubActionInputParameter
+import io.github.nefilim.githubactions.domain.GitHubActionOutputParameter
+import io.github.nefilim.githubactions.domain.ReusableWorkflow
+import io.github.nefilim.githubactions.domain.Workflow
 import io.github.nefilim.githubactions.domain.Workflow.Triggers
 import io.github.nefilim.githubactions.domain.Workflow.Triggers.Trigger
-import io.github.nefilim.githubactions.domain.Workflow.Triggers.Trigger.WorkflowDispatch.Input
-import io.github.nefilim.githubactions.domain.Workflow
+import io.github.nefilim.githubactions.domain.WorkflowCommon
+import io.github.nefilim.githubactions.domain.WorkflowCommon.Input
+import io.github.nefilim.githubactions.domain.WorkflowCommon.Job
+import io.github.nefilim.githubactions.domain.WorkflowCommon.Job.Step
+import io.github.nefilim.githubactions.outputRef
 import kotlinx.serialization.ExperimentalSerializationApi
-import java.util.Collections
+import java.util.*
 
 @GithubActionsWorkflowDSL
 class WorkflowBuilder(
@@ -43,6 +48,75 @@ class WorkflowBuilder(
     }
 }
 
+class ReusableWorkflowBuilder(
+    private val name: String,
+) {
+    private var concurrency: String? = null
+
+    private val jb = JobsBuilder()
+    private val eb = EnvBuilder()
+
+    private val wfcb: WorkflowCallBuilder = WorkflowCallBuilder()
+
+    fun workflowCall(fn: WorkflowCallBuilder.() -> Unit) {
+        wfcb.fn()
+    }
+
+    fun concurrency(con: String) {
+        this.concurrency = con
+    }
+
+    fun jobs(fn: JobsBuilder.() -> Unit) {
+        jb.fn()
+    }
+
+    fun env(fn: EnvBuilder.() -> Unit) {
+        eb.fn()
+    }
+
+    internal fun build(): ReusableWorkflow {
+        val workflowCall = wfcb.build()
+        return ReusableWorkflow(
+            name,
+            ReusableWorkflow.ReusableWorkflowTrigger(ReusableWorkflow.ReusableWorkflowTrigger.WorkflowCall(workflowCall.first, workflowCall.second)),
+            concurrency,
+            eb.build().ifEmpty { null },
+            jb.build()
+        )
+    }
+
+    class WorkflowCallBuilder() {
+        private val inputsMap = LinkedHashMap<GitHubActionInputParameter, Input>()
+        private val outputsMap = LinkedHashMap<GitHubActionOutputParameter, WorkflowCommon.Output>()
+
+        infix fun GitHubActionInputParameter.to(input: Input) {
+            inputsMap[this] = input
+        }
+
+        fun output(parameter: GitHubActionOutputParameter, output: WorkflowCommon.Output) {
+            outputsMap[parameter] = output
+        }
+
+        fun output(parameter: GitHubActionOutputParameter, jobID: WorkflowCommon.JobID, description: String) {
+            outputsMap[parameter] = WorkflowCommon.Output(description, outputRef(jobID, parameter))
+        }
+
+        fun inputChoice(name: GitHubActionInputParameter, description: String, options: List<String>, default: String, required: Boolean = false) {
+            name to Input.Choice(description, options, default, required)
+        }
+
+        fun inputBoolean(name: GitHubActionInputParameter, description: String, default: Boolean? = null, required: Boolean = false) {
+            name to Input.Boolean(description, default, required)
+        }
+
+        fun inputString(name: GitHubActionInputParameter, description: String, default: String? = null, required: Boolean = false) {
+            name to Input.String(description, default, required)
+        }
+
+        fun build(): Pair<Map<GitHubActionInputParameter, Input>, Map<GitHubActionOutputParameter, WorkflowCommon.Output>> = inputsMap.toMap() to outputsMap.toMap()
+    }
+}
+
 class TriggerBuilder() {
     private val pb: PushBuilder = PushBuilder()
     private val prb: PullRequestBuilder = PullRequestBuilder()
@@ -71,37 +145,41 @@ class TriggerBuilder() {
 }
 
 class WorkflowDispatchBuilder() {
-    private val map = LinkedHashMap<String, Input>()
+    private val map = LinkedHashMap<GitHubActionInputParameter, Input>()
 
-    infix fun String.to (input: Input) {
+    infix fun GitHubActionInputParameter.to (input: Input) {
         map[this] = input
     }
 
-    fun inputChoice(name: String, description: String, options: List<String>, default: String, required: Boolean = false) {
+    fun inputChoice(name: GitHubActionInputParameter, description: String, options: List<String>, default: String, required: Boolean = false) {
         name to Input.Choice(description, options, default, required)
     }
 
-    fun inputBoolean(name: String, description: String, default: Boolean? = null, required: Boolean = false) {
+    fun inputBoolean(name: GitHubActionInputParameter, description: String, default: Boolean? = null, required: Boolean = false) {
         name to Input.Boolean(description, default, required)
     }
 
-    fun inputString(name: String, description: String, default: String? = null, required: Boolean = false) {
+    fun inputString(name: GitHubActionInputParameter, description: String, default: String? = null, required: Boolean = false) {
         name to Input.String(description, default, required)
     }
 
-    fun build(): Map<String, Input> = map.toMap()
+    fun build(): Map<GitHubActionInputParameter, Input> = map.toMap()
 }
 
 class JobsBuilder {
-    private val map = HashMap<String, Job>()
+    private val map = LinkedHashMap<WorkflowCommon.JobID, Job>()
 
     infix fun String.to (job: Job) {
+        map[WorkflowCommon.JobID(this)] = job
+    }
+
+    infix fun WorkflowCommon.JobID.to (job: Job) {
         map[this] = job
     }
 
-    fun stepID(id: String) = Step.WStepID(id)
+    fun stepID(id: String) = Step.StepID(id)
 
-    fun build(): Map<String, Job> = map.toMap()
+    fun build(): LinkedHashMap<WorkflowCommon.JobID, Job> = map
 }
 
 class PushBuilder {
@@ -147,6 +225,15 @@ fun workflow(
     fn: WorkflowBuilder.() -> Unit,
 ): Workflow {
     val wfb = WorkflowBuilder(name)
+    wfb.fn()
+    return wfb.build()
+}
+
+fun reusableWorkflow(
+    name: String,
+    fn: ReusableWorkflowBuilder.() -> Unit,
+): ReusableWorkflow {
+    val wfb = ReusableWorkflowBuilder(name)
     wfb.fn()
     return wfb.build()
 }

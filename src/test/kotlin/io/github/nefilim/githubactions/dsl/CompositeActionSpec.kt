@@ -3,12 +3,10 @@ package io.github.nefilim.githubactions.dsl
 import io.github.nefilim.githubactions.GitHubActionsYAML
 import io.github.nefilim.githubactions.actionInputRef
 import io.github.nefilim.githubactions.actions.CheckoutAction
-import io.github.nefilim.githubactions.actions.adhoc
 import io.github.nefilim.githubactions.domain.CompositeAction
+import io.github.nefilim.githubactions.domain.adhoc
 import io.github.nefilim.githubactions.expression
-import io.github.nefilim.githubactions.inputRef
 import io.kotest.core.spec.style.WordSpec
-import io.kotest.matchers.shouldBe
 
 class CompositeActionSpec: WordSpec() {
     init {

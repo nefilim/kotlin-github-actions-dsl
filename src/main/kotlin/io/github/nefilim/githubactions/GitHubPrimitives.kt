@@ -1,10 +1,11 @@
 package io.github.nefilim.githubactions
 
-import io.github.nefilim.githubactions.actions.AdhocParameter
-import io.github.nefilim.githubactions.actions.GitHubActionInputParameter
-import io.github.nefilim.githubactions.actions.GitHubActionOutputParameter
-import io.github.nefilim.githubactions.actions.GitHubActionParameter
+import io.github.nefilim.githubactions.domain.AdhocParameter
+import io.github.nefilim.githubactions.domain.GitHubActionInputParameter
+import io.github.nefilim.githubactions.domain.GitHubActionOutputParameter
+import io.github.nefilim.githubactions.domain.GitHubActionParameter
 import io.github.nefilim.githubactions.domain.StepID
+import io.github.nefilim.githubactions.domain.WorkflowCommon
 
 fun param(name: String, value: String): Pair<GitHubActionParameter, String> = AdhocParameter(name) to value
 fun param(parameter: GitHubActionParameter, value: String): Pair<GitHubActionParameter, String> = parameter to value
@@ -16,6 +17,8 @@ fun githubRepository(): String = githubRef("repository")
 
 fun shellOutput(parameter: GitHubActionOutputParameter, value: String): String = "echo \"::set-output name=${parameter.parameter}::$value\""
 
+fun outputRef(jobID: WorkflowCommon.JobID, name: String): String = expression("needs.${jobID.id}.outputs.$name")
+fun outputRef(jobID: WorkflowCommon.JobID, parameter: GitHubActionOutputParameter): String = expression("needs.${jobID.id}.outputs.${parameter.parameter}")
 fun outputRef(stepID: StepID, name: String): String = expression("steps.${stepID.id}.outputs.$name")
 fun outputRef(stepID: StepID, parameter: GitHubActionOutputParameter): String = expression("steps.${stepID.id}.outputs.${parameter.parameter}")
 fun nestedOutputRef(stepID: StepID, parameter: GitHubActionOutputParameter): String = "steps.${stepID.id}.outputs.${parameter.parameter}"

@@ -3,9 +3,6 @@
 package io.github.nefilim.githubactions.domain
 
 import io.github.nefilim.githubactions.StepIDSerializer
-import io.github.nefilim.githubactions.actions.GitHubActionInputParameter
-import io.github.nefilim.githubactions.actions.GitHubActionOutputParameter
-import io.github.nefilim.githubactions.actions.GitHubActionParameter
 import kotlinx.serialization.EncodeDefault
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialName
