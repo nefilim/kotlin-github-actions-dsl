@@ -6,7 +6,12 @@ Simple DSL to generate Github Actions YAML workflows.
 
 ## Usage
 
-Include the following dependency: `io.github.nefilim.githubactions:kotlin-dsl:<latest>`. 
+Include the following dependencies: 
+* `io.github.nefilim.githubactions:kotlin-dsl-core:<latest>` 
+* `io.github.nefilim.githubactions:kotlin-dsl-actions:<latest>`
+
+If you wish to generate additional actions from metadata, also include:
+* `io.github.nefilim.githubactions:kotlin-dsl-action-generator:<latest>`
 
 Define your workflow, example:
 
@@ -59,10 +64,12 @@ A Gradle Plugin is also available to generate workflows right from your build de
                                
 ## Bundled Actions
 
-* [CheckoutAction](https://github.com/actions/checkout)
-* [SetupJavaAction](https://github.com/actions/setup-java)
-* [GradleBuildAction](https://github.com/gradle/gradle-build-action)
+Note: these are actions are generated and not committed to the source tree:
 
-To add additional type safe GitHub Actions, please implement the [GithubAction interface](https://github.com/nefilim/kotlin-github-actions-dsl/blob/main/src/main/kotlin/io/github/nefilim/githubactions/dsl/actions/GithubAction.kt). 
+* [CheckoutActionV3](https://github.com/actions/checkout)
+* [SetupJavaActionV3](https://github.com/actions/setup-java)
+* [GradleBuildActionV2](https://github.com/gradle/gradle-build-action)
+
+To add additional type safe GitHub Actions, please implement the [GithubAction interface](https://github.com/nefilim/kotlin-github-actions-dsl/blob/main/core/src/main/kotlin/io/github/nefilim/githubactions/domain/GitHubAction.kt) or use the code generator, an example can be seen [here](https://github.com/nefilim/kotlin-github-actions-dsl/blob/main/action-generator/src/main/kotlin/io/github/nefilim/githubactions/generator/GitHubActionGenerator.kt#L212-L221). 
 
 Example: [Gradle Build Action](https://github.com/nefilim/kotlin-github-actions-dsl/blob/main/src/main/kotlin/io/github/nefilim/githubactions/dsl/actions/GradleBuildAction.kt)
