@@ -71,5 +71,3 @@ Note: these are actions are generated and not committed to the source tree:
 * [GradleBuildActionV2](https://github.com/gradle/gradle-build-action)
 
 To add additional type safe GitHub Actions, please implement the [GithubAction interface](https://github.com/nefilim/kotlin-github-actions-dsl/blob/main/core/src/main/kotlin/io/github/nefilim/githubactions/domain/GitHubAction.kt) or use the code generator, an example can be seen [here](https://github.com/nefilim/kotlin-github-actions-dsl/blob/main/action-generator/src/main/kotlin/io/github/nefilim/githubactions/generator/GitHubActionGenerator.kt#L212-L221). 
-
-Example: [Gradle Build Action](https://github.com/nefilim/kotlin-github-actions-dsl/blob/main/src/main/kotlin/io/github/nefilim/githubactions/dsl/actions/GradleBuildAction.kt)
