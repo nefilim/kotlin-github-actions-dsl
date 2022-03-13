@@ -2,7 +2,6 @@ package io.github.nefilim.githubactions.dsl
 
 import io.github.nefilim.githubactions.GitHubActionsYAML
 import io.github.nefilim.githubactions.actionInputRef
-import io.github.nefilim.githubactions.actions.CheckoutAction
 import io.github.nefilim.githubactions.domain.CompositeAction
 import io.github.nefilim.githubactions.domain.adhoc
 import io.github.nefilim.githubactions.expression
@@ -43,7 +42,7 @@ class CompositeActionSpec: WordSpec() {
                             CompositeAction.Runs.Step(
                                 name = "Checkout",
                                 predicate = expression("inputs.sourcePath != 'false'"),
-                                uses = CheckoutAction.Companion.Uses,
+                                uses = "actions/checkout@v2",
                                 parameters = mapOf(
                                     "path" to actionInputRef("sourcePath"),
                                     "fetch-depth" to "0",

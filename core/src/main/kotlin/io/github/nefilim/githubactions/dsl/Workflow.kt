@@ -21,7 +21,7 @@ import java.util.*
 class WorkflowBuilder(
     private val name: String,
 ) {
-    private var concurrency: String? = null
+    private var concurrency: WorkflowCommon.Concurrency? = null
     private val tb = TriggerBuilder()
     private val jb = JobsBuilder()
     private val eb = EnvBuilder()
@@ -30,8 +30,8 @@ class WorkflowBuilder(
         tb.fn()
     }
 
-    fun concurrency(con: String) {
-        this.concurrency = con
+    fun concurrency(group: String, cancelInProgress: Boolean = false) {
+        this.concurrency = WorkflowCommon.Concurrency(group, cancelInProgress)
     }
 
     fun jobs(fn: JobsBuilder.() -> Unit) {
@@ -51,7 +51,7 @@ class WorkflowBuilder(
 class ReusableWorkflowBuilder(
     private val name: String,
 ) {
-    private var concurrency: String? = null
+    private var concurrency: WorkflowCommon.Concurrency? = null
 
     private val jb = JobsBuilder()
     private val eb = EnvBuilder()
@@ -62,8 +62,8 @@ class ReusableWorkflowBuilder(
         wfcb.fn()
     }
 
-    fun concurrency(con: String) {
-        this.concurrency = con
+    fun concurrency(group: String, cancelInProgress: Boolean = false) {
+        this.concurrency = WorkflowCommon.Concurrency(group, cancelInProgress)
     }
 
     fun jobs(fn: JobsBuilder.() -> Unit) {

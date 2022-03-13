@@ -16,7 +16,7 @@ import kotlinx.serialization.Transient
 data class Workflow(
     val name: String,
     val on: Triggers,
-    @EncodeDefault(EncodeDefault.Mode.NEVER) val concurrency: String? = null,
+    @EncodeDefault(EncodeDefault.Mode.NEVER) val concurrency: WorkflowCommon.Concurrency? = null,
     @EncodeDefault(EncodeDefault.Mode.NEVER) @SerialName("env") val environment: Environment? = null,
     val jobs: LinkedHashMap<WorkflowCommon.JobID, WorkflowCommon.Job> = LinkedHashMap(),
 ) {
@@ -59,7 +59,7 @@ data class Workflow(
 data class ReusableWorkflow(
     val name: String,
     val on: ReusableWorkflowTrigger,
-    @EncodeDefault(EncodeDefault.Mode.NEVER) val concurrency: String? = null,
+    @EncodeDefault(EncodeDefault.Mode.NEVER) val concurrency: WorkflowCommon.Concurrency? = null,
     @EncodeDefault(EncodeDefault.Mode.NEVER) @SerialName("env") val environment: Environment? = null,
     val jobs: LinkedHashMap<WorkflowCommon.JobID, WorkflowCommon.Job> = LinkedHashMap(),
 ) {
@@ -77,6 +77,12 @@ data class ReusableWorkflow(
 }
 
 object WorkflowCommon {
+    @Serializable
+    data class Concurrency(
+        val group: String,
+        @SerialName("cancel-in-progress") val cancelInProgress: Boolean = false,
+    )
+
     @Serializable
     enum class Type {
         @SerialName("boolean") Boolean,

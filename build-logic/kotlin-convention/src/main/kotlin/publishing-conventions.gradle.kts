@@ -35,9 +35,9 @@ publishing {
     publications {
         create<MavenPublication>("mavenJava") {
             pom {
-                name.set("kotlin-github-actions-dsl")
+                name.set("kotlin-github-actions-dsl-${project.name}")
                 description.set("A Kotlin DSL for generating Github Actions in YAML")
-                url.set("https://github.com/nefilim/ghakdsl")
+                url.set("https://github.com/nefilim/kotlin-github-actions-dsl")
                 licenses {
                     license {
                         name.set("GPL-3.0-only")
@@ -52,11 +52,11 @@ publishing {
                     }
                 }
                 scm {
-                    connection.set("scm:git:https://github.com/nefilim/ghakdsl.git")
-                    url.set("https://github.com/nefilim/ghakdsl")
+                    connection.set("scm:git:https://github.com/nefilim/kotlin-github-actions-dsl.git")
+                    url.set("https://github.com/nefilim/kotlin-github-actions-dsl")
                 }
             }
-            artifactId = "kotlin-dsl"
+            artifactId = "kotlin-dsl-${project.name}"
             groupId = project.group.toString()
             version = project.version.toString()
             from(components["java"])

@@ -25,7 +25,7 @@ val wf = workflow("CI Build") {
             inputString("deploymentFilename", "Deployment descriptor name", "deployment.yaml", false)
         }
     }
-    concurrency("ci-build-${githubRef("ref")}")
+    concurrency("ci-build-${githubRef("ref")}", true)
     env {
         "NEXUS_USER" to secretRef("NEXUS_USER")
         "NEXUS_PASS" to secretRef("NEXUS_PASS")

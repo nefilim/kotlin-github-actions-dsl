@@ -8,36 +8,27 @@ plugins {
     alias(libs.plugins.dependencyUpdates)
     alias(libs.plugins.dependencyCheck)
     alias(libs.plugins.githubRelease)
-    alias(libs.plugins.kotlinx.serialization)
     id("kotlin-conventions")
     id("build-conventions")
-    id("publishing-conventions")
+}
+
+semver {
+    tagPrefix("v")
+    initialVersion("0.0.1")
+    findProperty("semver.overrideVersion")?.toString()?.let { overrideVersion(it) }
+    val semVerModifier = findProperty("semver.modifier")?.toString()?.let { buildVersionModifier(it) } ?: { nextPatch() }
+    versionModifier(semVerModifier)
+}
+
+version = semver.version
+
+subprojects {
+    version = rootProject.version
 }
 
 repositories {
     mavenLocal()
     mavenCentral()
-}
-
-dependencies {
-    listOf(
-        platform(libs.arrow.stack),
-        libs.arrow.core,
-        libs.kotlinLogging,
-        libs.kotlin.reflect,
-        libs.kotlinx.coroutines.core,
-        libs.kotlinx.serialization.yaml,
-    ).map {
-        implementation(it)
-    }
-
-    listOf(
-        libs.kotest.runner,
-        libs.kotest.assertions.core,
-        libs.kotest.assertions.arrow,
-    ).map {
-        testImplementation(it)
-    }
 }
 
 dependencyCheck {
@@ -54,7 +45,7 @@ dependencyCheck {
     analyzers.rubygemsEnabled = false
 }
 
-// can only be applied to root project 
+// can only be applied to root project
 nexusPublishing {
     repositories {
         sonatype {

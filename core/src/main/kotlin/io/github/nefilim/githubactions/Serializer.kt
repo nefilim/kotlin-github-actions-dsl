@@ -87,6 +87,6 @@ val GitHubActionsYAML = Yaml(
     configuration = YamlConfiguration(
         breakScalarsAt = 200,
         multiLineStringStyle = MultiLineStringStyle.Literal,
-        singleLineScalarStyle = SingleLineStringStyle.SingleQuoted,
+        singleLineStringStyle = SingleLineStringStyle.Plain,
     )
 )
