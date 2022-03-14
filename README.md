@@ -69,5 +69,8 @@ Note: these are actions are generated and not committed to the source tree:
 * [CheckoutActionV3](https://github.com/actions/checkout)
 * [SetupJavaActionV3](https://github.com/actions/setup-java)
 * [GradleBuildActionV2](https://github.com/gradle/gradle-build-action)
+* [SlackActionV1](https://github.com/slackapi/slack-github-action)
 
 To add additional type safe GitHub Actions, please implement the [GithubAction interface](https://github.com/nefilim/kotlin-github-actions-dsl/blob/main/core/src/main/kotlin/io/github/nefilim/githubactions/domain/GitHubAction.kt) or use the code generator, an example can be seen [here](https://github.com/nefilim/kotlin-github-actions-dsl/blob/main/action-generator/src/main/kotlin/io/github/nefilim/githubactions/generator/GitHubActionGenerator.kt#L212-L221). 
+
+If you want to see any additional actions bundled, please open an issue or PR, given the code generator it should be quick to add additional actions. 
