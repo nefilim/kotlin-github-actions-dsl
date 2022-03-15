@@ -153,7 +153,7 @@ object WorkflowCommon {
     data class Job(
         @EncodeDefault(EncodeDefault.Mode.NEVER) val needs: JobID? = null,
         @SerialName("runs-on") val runsOn: List<String>,
-        @SerialName("if") val predicate: String? = null,
+        @EncodeDefault(EncodeDefault.Mode.NEVER) @SerialName("if") val predicate: String? = null,
         val steps: List<Step>,
         val outputs: Map<GitHubActionOutputParameter, String> = emptyMap(),
     ) {
