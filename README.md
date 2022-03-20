@@ -1,8 +1,11 @@
 ![Kotlin version](https://img.shields.io/badge/kotlin-1.6.0-blueviolet?logo=kotlin&logoColor=white)
-
 # Kotlin DSL for Github Actions 
 
 Simple DSL to generate Github Actions YAML workflows. 
+
+* [Usage](#usage)
+* [Gradle Integration](#gradle-integration)
+* [Bundled Actions](#bundled-actions)
 
 ## Usage
 
@@ -59,6 +62,8 @@ Generate the corresponding YAML using [KotlinX Serialization](https://github.com
 ```kotlin
     println(GitHubActionsYAML.encodeToString(Workflow.serializer(), wf))
 ```
+
+## Gradle Integration
 
 A Gradle Plugin is also available to generate workflows right from your build definition: https://github.com/nefilim/gradle-github-actions-generator
                                
