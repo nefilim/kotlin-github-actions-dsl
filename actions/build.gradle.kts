@@ -26,6 +26,13 @@ sourceSets {
     }
 }
 
+tasks.create("cleanGeneratedActions") {
+    project.delete(layout.projectDirectory.dir("src/generated"))
+}
+tasks.getByName("clean") {
+    dependsOn("cleanGeneratedActions")
+}
+
 ktlint {
     version.set("0.44.0")
 }

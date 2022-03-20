@@ -24,7 +24,7 @@ dependencies {
 }
 
 tasks.register<JavaExec>("generateActions") {
-    mainClass.set("io.github.nefilim.githubactions.generator.GitHubActionGeneratorKt")
+    mainClass.set("io.github.nefilim.githubactions.generator.FileWriterKt")
     classpath = sourceSets.main.get().runtimeClasspath
     args(project(":actions").layout.projectDirectory.dir("src/generated/kotlin").toString())
     finalizedBy()

@@ -1,8 +1,6 @@
 package io.github.nefilim.githubactions.generator
 
-import com.charleskorn.kaml.MultiLineStringStyle
 import com.charleskorn.kaml.Yaml
-import com.charleskorn.kaml.YamlConfiguration
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.FileSpec
@@ -17,12 +15,12 @@ import com.squareup.kotlinpoet.typeNameOf
 import com.squareup.kotlinpoet.withIndent
 import io.github.nefilim.githubactions.domain.GitHubAction
 import io.github.nefilim.githubactions.domain.GitHubActionInputParameter
+import io.github.nefilim.githubactions.domain.GitHubActionOutputParameter
 import io.github.nefilim.githubactions.domain.WorkflowCommon
 import java.net.URI
 import java.net.http.HttpClient
 import java.net.http.HttpRequest
 import java.net.http.HttpResponse
-import java.nio.file.Path
 import java.time.Duration
 
 private fun String.delimiterCaseToCamelCase(delim: Char): String {
@@ -114,6 +112,27 @@ fun generateGitHubAction(
         it.key to parameterName
     }.toMap()
 
+    // build inner enum class for output parameters
+    val outputParameter = stub.outputs?.let { outputs ->
+        val outputParameterConstructorBuilder = FunSpec.constructorBuilder()
+                .addParameter(ParameterSpec.builder("parameter", String::class, KModifier.OVERRIDE).build())
+        val outputParameterClassName = ClassName(packageName, "OutputParameter")
+        val outputParameterEnumBuilder = TypeSpec.enumBuilder(outputParameterClassName)
+                .addSuperinterface(GitHubActionOutputParameter::class)
+                .primaryConstructor(outputParameterConstructorBuilder.build())
+                .addProperty(PropertySpec.builder("parameter", String::class).initializer("parameter").build())
+        val outputParameters = outputs.map {
+            val parameterName = it.key.normalizeVariableName().capitalize()
+            outputParameterEnumBuilder.addEnumConstant(
+                    parameterName,
+                    TypeSpec.anonymousClassBuilder()
+                            .addSuperclassConstructorParameter("%S", it.key)
+                            .build()
+            )
+            it.key to parameterName
+        }.toMap()
+        outputParameterEnumBuilder to outputParameters
+    }
 
     // build override fun toStep(id: Step.StepID, name: String, predicate: String?, env: Environment?): Step {
     val paramMemberName = MemberName("io.github.nefilim.githubactions", "param")
@@ -159,64 +178,63 @@ fun generateGitHubAction(
                 .addProperty(PropertySpec.builder("description", String::class.asTypeName()).addModifiers(KModifier.OVERRIDE).initializer("%S", stub.description).build())
                 .addType(TypeSpec.companionObjectBuilder().addProperty(PropertySpec.builder("Uses", String::class).addModifiers(KModifier.CONST).initializer("%S", actionUses).build()).build())
                 .addType(inputParameterEnumBuilder.build())
+                .also {
+                    val builder = it
+                    outputParameter?.also {
+                        builder.addType(it.first.build())
+                    }
+                }
                 .addFunction(fullToStep.build())
                 .addFunction(defaultToStep.build())
                 .build()
         )
 }
 
-typealias MetadataProvider = (String) -> String
+typealias MetadataProvider = (URI) -> String
 
-val downloadMetadataWithHTTP: MetadataProvider = { url: String ->
+private fun String.trimmedLeadingAndTrailingSlashes(): String = this.trimStart('/').trimEnd('/')
+
+val downloadMetadataWithHTTP: MetadataProvider = { uri: URI ->
     val client = HttpClient.newBuilder()
         .version(HttpClient.Version.HTTP_1_1)
         .connectTimeout(Duration.ofSeconds(10))
         .build()
 
     val request = HttpRequest.newBuilder()
-        .uri(URI.create(url))
+        .uri(uri)
         .build()
 
     client.send(request, HttpResponse.BodyHandlers.ofString()).body()
 }
 
 data class ActionToGenerate(
-    val metadataURL: String,
-    val kotlinFilename: String,
-    val packageName: String,
-    val className: String,
-    val uses: String,
-)
+    val gitHubRepositoryOrganization: String,
+    val gitHubRepositoryName: String,
+    val gitTagName: String,
+    val uses: String = "${gitHubRepositoryOrganization.trim()}/${gitHubRepositoryName.trim()}@$gitTagName",
+) {
+    val gitHubRepositoryURL: URI = URI.create("https://github.com/${gitHubRepositoryOrganization.trim()}/${gitHubRepositoryName.trim()}")
+
+    val rawMetadataURI: URI = URI.create("https://raw.githubusercontent.com/${gitHubRepositoryURL.path.trimmedLeadingAndTrailingSlashes()}/$gitTagName/action.yml")
+
+    fun fileName(): String {
+        val prefix = gitHubRepositoryName.normalizeVariableName().capitalize()
+        return if (prefix.contains("action", ignoreCase = true))
+            "$prefix${gitTagName.uppercase()}"
+        else
+            "${prefix}Action${gitTagName.uppercase()}"
+    }
+
+    fun packageName(): String = "$PackageName.$gitHubRepositoryOrganization"
+
+    fun className(): String = fileName()
+}
 
 fun processActionToGenerate(action: ActionToGenerate, yamlParser: Yaml): FileSpec.Builder {
     println("Generating [$action]")
-    return downloadMetadataWithHTTP(action.metadataURL).let {
+    return downloadMetadataWithHTTP(action.rawMetadataURI).let {
         yamlParser.decodeFromString(GitHubActionStub.serializer(), it)
     }.let {
-        generateGitHubAction(it, action.kotlinFilename, action.packageName, action.className, action.uses)
-    }
-}
-
-@OptIn(ExperimentalStdlibApi::class)
-fun main(args: Array<String>) {
-    println("generating actions to ${args[0]}")
-
-    val gitHubActionsYAMLParser = Yaml(
-        configuration = YamlConfiguration(
-            strictMode = false,
-            multiLineStringStyle = MultiLineStringStyle.Literal,
-        )
-    )
-    val PackageName = "io.github.nefilim.githubactions.actions"
-
-    listOf(
-        ActionToGenerate("https://raw.githubusercontent.com/actions/checkout/v3/action.yml", "CheckoutActionV3", PackageName, "CheckoutActionV3", "actions/checkout@v3"),
-        ActionToGenerate("https://raw.githubusercontent.com/actions/setup-java/v3/action.yml", "SetupJavaActionV3", PackageName, "SetupJavaActionV3", "actions/setup-java@v3"),
-        ActionToGenerate("https://raw.githubusercontent.com/gradle/gradle-build-action/v2/action.yml", "GradleBuildActionV2", PackageName, "GradleBuildActionV2", "gradle/gradle-build-action@v2"),
-        ActionToGenerate("https://raw.githubusercontent.com/slackapi/slack-github-action/v1/action.yml", "SlackActionV1", PackageName, "SlackActionV1", "slackapi/slack-github-action@v1"),
-    ).map {
-        it to processActionToGenerate(it, gitHubActionsYAMLParser)
-    }.forEach { 
-        it.second.build().writeTo(Path.of(args[0]))
+        generateGitHubAction(it, action.fileName(), action.packageName(), action.className(), action.uses)
     }
 }
