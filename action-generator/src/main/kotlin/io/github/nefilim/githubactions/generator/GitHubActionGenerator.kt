@@ -40,6 +40,10 @@ fun String.normalizeVariableName(): String {
     }
 }
 
+fun String.normalizePackageName(): String {
+    return this.replace("-", "")
+}
+
 fun String.capitalize(): String = this.replaceFirstChar { it.uppercaseChar() }
 
 fun nullableStringProperty(name: String, defaultValue: String = "null"): PropertySpec.Builder {
@@ -83,7 +87,8 @@ fun generateGitHubAction(
             )
         }
     }
-    val clazzName = ClassName(packageName, className)
+    val normalizedPackageName = packageName.normalizePackageName()
+    val clazzName = ClassName(normalizedPackageName, className)
     val clazzBuilder = TypeSpec.Companion.classBuilder(clazzName)
         .addModifiers(KModifier.DATA)
         .addSuperinterface(GitHubAction::class)
@@ -96,7 +101,7 @@ fun generateGitHubAction(
     val inputParameterConstructorBuilder = FunSpec.constructorBuilder()
         .addParameter(ParameterSpec.builder("parameter", String::class, KModifier.OVERRIDE).build())
 
-    val inputParameterClassName = ClassName(packageName, "InputParameter")
+    val inputParameterClassName = ClassName(normalizedPackageName, "InputParameter")
     val inputParameterEnumBuilder = TypeSpec.enumBuilder(inputParameterClassName)
         .addSuperinterface(GitHubActionInputParameter::class)
         .primaryConstructor(inputParameterConstructorBuilder.build())
@@ -116,7 +121,7 @@ fun generateGitHubAction(
     val outputParameter = stub.outputs?.let { outputs ->
         val outputParameterConstructorBuilder = FunSpec.constructorBuilder()
                 .addParameter(ParameterSpec.builder("parameter", String::class, KModifier.OVERRIDE).build())
-        val outputParameterClassName = ClassName(packageName, "OutputParameter")
+        val outputParameterClassName = ClassName(normalizedPackageName, "OutputParameter")
         val outputParameterEnumBuilder = TypeSpec.enumBuilder(outputParameterClassName)
                 .addSuperinterface(GitHubActionOutputParameter::class)
                 .primaryConstructor(outputParameterConstructorBuilder.build())
@@ -171,7 +176,7 @@ fun generateGitHubAction(
         .addStatement("return toStep(null, %S, null, null)", stub.name)
 
     // ok now all together
-    return FileSpec.builder(packageName, kotlinFilename)
+    return FileSpec.builder(normalizedPackageName, kotlinFilename)
         .addType(
             clazzBuilder
                 .addProperty(PropertySpec.builder("name", String::class.asTypeName()).addModifiers(KModifier.OVERRIDE).initializer("%S", stub.name).build())
