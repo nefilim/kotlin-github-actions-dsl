@@ -99,13 +99,13 @@ fun generateGitHubAction(
 
     // build inner enum class for input parameters
     val inputParameterConstructorBuilder = FunSpec.constructorBuilder()
-        .addParameter(ParameterSpec.builder("parameter", String::class, KModifier.OVERRIDE).build())
+        .addParameter(ParameterSpec.builder("parameter", String::class).build())
 
     val inputParameterClassName = ClassName(normalizedPackageName, "InputParameter")
     val inputParameterEnumBuilder = TypeSpec.enumBuilder(inputParameterClassName)
         .addSuperinterface(GitHubActionInputParameter::class)
         .primaryConstructor(inputParameterConstructorBuilder.build())
-        .addProperty(PropertySpec.builder("parameter", String::class).initializer("parameter").build())
+        .addProperty(PropertySpec.builder("parameter", String::class, KModifier.OVERRIDE).initializer("parameter").build())
     val inputParameters = stub.inputs.map {
         val parameterName = it.key.normalizeVariableName().capitalize()
         inputParameterEnumBuilder.addEnumConstant(
@@ -120,12 +120,12 @@ fun generateGitHubAction(
     // build inner enum class for output parameters
     val outputParameter = stub.outputs?.let { outputs ->
         val outputParameterConstructorBuilder = FunSpec.constructorBuilder()
-                .addParameter(ParameterSpec.builder("parameter", String::class, KModifier.OVERRIDE).build())
+            .addParameter(ParameterSpec.builder("parameter", String::class).build())
         val outputParameterClassName = ClassName(normalizedPackageName, "OutputParameter")
         val outputParameterEnumBuilder = TypeSpec.enumBuilder(outputParameterClassName)
                 .addSuperinterface(GitHubActionOutputParameter::class)
                 .primaryConstructor(outputParameterConstructorBuilder.build())
-                .addProperty(PropertySpec.builder("parameter", String::class).initializer("parameter").build())
+                .addProperty(PropertySpec.builder("parameter", String::class, KModifier.OVERRIDE).initializer("parameter").build())
         val outputParameters = outputs.map {
             val parameterName = it.key.normalizeVariableName().capitalize()
             outputParameterEnumBuilder.addEnumConstant(

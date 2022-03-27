@@ -34,12 +34,12 @@ tasks.getByName("clean") {
 }
 
 ktlint {
-    version.set("0.44.0")
+    version.set(libs.versions.ktlint)
 }
 
 configure<org.jlleitschuh.gradle.ktlint.KtlintExtension> {
-    version.set("0.44.0")
-    debug.set(true)
+    version.set(libs.versions.ktlint)
+    debug.set(false)
     verbose.set(true)
     android.set(false)
     outputToConsole.set(true)
