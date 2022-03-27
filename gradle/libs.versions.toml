@@ -9,6 +9,7 @@ kotlinPoet = "1.11.0"
 arrow = "1.0.1"
 google-kms = "0.94.0"
 gradle-github-release = "2.2.12"
+gradle-ktlint = "10.2.1"
 gradle-nexus-publish = "1.1.0"
 gradle-protobuf-plugin = "0.8.18"
 gradle-semver = "0.3.+"
@@ -48,6 +49,7 @@ dependencyUpdates = { id = "com.github.ben-manes.versions", version.ref = "gradl
 githubRelease = { id = "com.github.breadmoirai.github-release", version.ref = "gradle-github-release" }
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlinx-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+ktlint = { id = "org.jlleitschuh.gradle.ktlint", version.ref = "gradle-ktlint" }
 nexus-publish = { id = "io.github.gradle-nexus.publish-plugin", version.ref = "gradle-nexus-publish" }
 semver = { id = "io.github.nefilim.gradle.semver-plugin", version.ref = "gradle-semver" }
 tasktree = { id = "com.dorongold.task-tree", version.ref = "gradle-tasktree" }

@@ -1,10 +1,10 @@
 plugins {
     alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.kotlinx.serialization)
+    alias(libs.plugins.ktlint)
     id("kotlin-conventions")
     id("build-conventions")
     id("publishing-conventions")
-    id("org.jlleitschuh.gradle.ktlint") version "10.2.1"
 }
 
 dependencies {
@@ -40,7 +40,7 @@ ktlint {
 configure<org.jlleitschuh.gradle.ktlint.KtlintExtension> {
     version.set(libs.versions.ktlint)
     debug.set(false)
-    verbose.set(true)
+    verbose.set(false)
     android.set(false)
     outputToConsole.set(true)
     outputColorName.set("RED")
