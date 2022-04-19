@@ -25,6 +25,7 @@ data class Workflow(
         @EncodeDefault(EncodeDefault.Mode.NEVER) @SerialName("workflow_dispatch") val workflowDispatch: Trigger.WorkflowDispatch? = null,
         @EncodeDefault(EncodeDefault.Mode.NEVER) val push: Trigger.Push? = null,
         @EncodeDefault(EncodeDefault.Mode.NEVER) @SerialName("pull_request") val pullRequest: Trigger.PullRequest? = null,
+        @EncodeDefault(EncodeDefault.Mode.NEVER) val schedule: List<Trigger.Cron>? = null,
     ) {
         @Serializable
         sealed class Trigger {
@@ -50,6 +51,12 @@ data class Workflow(
             @SerialName("workflow_dispatch")
             data class WorkflowDispatch(
                 val inputs: Map<GitHubActionInputParameter, WorkflowCommon.Input> = emptyMap()
+            ): Trigger()
+
+            @Serializable
+            @SerialName("cron")
+            data class Cron(
+                val cron: String
             ): Trigger()
         }
     }

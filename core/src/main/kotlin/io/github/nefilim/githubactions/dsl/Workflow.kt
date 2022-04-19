@@ -2,6 +2,9 @@
 
 package io.github.nefilim.githubactions.dsl
 
+import com.cronutils.model.CronType
+import com.cronutils.model.definition.CronDefinitionBuilder
+import com.cronutils.parser.CronParser
 import io.github.nefilim.githubactions.GithubActionsWorkflowDSL
 import io.github.nefilim.githubactions.domain.GitHubActionInputParameter
 import io.github.nefilim.githubactions.domain.GitHubActionOutputParameter
@@ -121,6 +124,7 @@ class TriggerBuilder() {
     private val pb: PushBuilder = PushBuilder()
     private val prb: PullRequestBuilder = PullRequestBuilder()
     private val wfdb: WorkflowDispatchBuilder = WorkflowDispatchBuilder()
+    private val sb: ScheduleBuilder = ScheduleBuilder()
 
     fun workflowDispatch(fn: WorkflowDispatchBuilder.() -> Unit) {
         wfdb.fn()
@@ -134,12 +138,17 @@ class TriggerBuilder() {
         prb.fn()
     }
 
+    fun schedule(fn: ScheduleBuilder.() -> Unit) {
+        sb.fn()
+    }
+
     internal fun build(): Triggers {
         val wfd = wfdb.build()
         return Triggers(
             if (wfd.isEmpty()) null else Trigger.WorkflowDispatch(wfd),
             pb.build(),
             prb.build(),
+            sb.build()
         )
     }
 }
@@ -217,6 +226,22 @@ class PullRequestBuilder {
                 Collections.unmodifiableList(branchesIgnore),
                 Collections.unmodifiableList(pathsIgnore),
             )
+    }
+}
+
+class ScheduleBuilder {
+    private var crons: List<Trigger.Cron> = emptyList()
+    private val cronDefinition = CronDefinitionBuilder.instanceDefinitionFor(CronType.UNIX)
+    private val cronParser = CronParser(cronDefinition)
+
+    fun cron(expression: String) {
+        val sanitizedExpression = expression.trim()
+        cronParser.parse(sanitizedExpression)
+        crons = crons + Trigger.Cron(if (expression.startsWith("*")) expression else " $expression")
+    }
+
+    internal fun build(): List<Trigger.Cron>? {
+        return crons.ifEmpty { null }
     }
 }
 

@@ -16,6 +16,7 @@ repositories {
 
 dependencies {
     listOf(
+        libs.cron.utils,
         libs.kotlin.reflect,
         libs.kotlinx.coroutines.core,
         libs.kotlinx.serialization.yaml,

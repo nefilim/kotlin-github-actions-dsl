@@ -7,6 +7,7 @@ kotlinPoet = "1.11.0"
 
 # third party
 arrow = "1.0.1"
+cron-utils = "9.1.6"
 google-kms = "0.94.0"
 gradle-github-release = "2.2.12"
 gradle-ktlint = "10.2.1"
@@ -30,6 +31,8 @@ kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref =
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinXCoroutines" }
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinXSerialization" }
 kotlinx-serialization-yaml = { module = "com.charleskorn.kaml:kaml", version.ref = "kotlinXSerializationYAML" }
+
+cron-utils = { module = "com.cronutils:cron-utils", version.ref = "cron-utils" }
 
 gradle-nexusPublish = { module = "io.github.gradle-nexus:publish-plugin", version.ref = "gradle-nexus-publish" }
 gradle-kotlin-jvm = { module = "org.jetbrains.kotlin.jvm:org.jetbrains.kotlin.jvm.gradle.plugin", version.ref = "kotlin" }
